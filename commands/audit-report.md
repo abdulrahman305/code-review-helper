@@ -1,7 +1,7 @@
 ---
 name: audit-report
-description: Generate a formal audit report with findings in Markdown and JSON formats
-argument-hint: "[path] [--output <filename>]"
+description: Generate comprehensive formal audit report covering all 10 audit dimensions with findings in Markdown and JSON formats
+argument-hint: "[path] [--output <filename>] [--frameworks <list>]"
 allowed-tools:
   - Read
   - Glob
@@ -10,9 +10,29 @@ allowed-tools:
   - Write
 ---
 
-# Audit Report
+# Comprehensive Audit Report
 
-Generate a comprehensive, formal audit report suitable for compliance documentation, auditors, or regulatory submissions. Produces both human-readable Markdown and machine-readable JSON outputs.
+Generate a DEEP, FORMAL audit report covering all 10 audit dimensions, suitable for compliance documentation, auditors, regulatory submissions, and board-level reporting. Produces both human-readable Markdown and machine-readable JSON outputs.
+
+## Audit Philosophy
+
+**Comprehensive:** Cover ALL 10 audit dimensions without exception.
+**Evidence-Based:** Every finding must have code evidence.
+**Actionable:** Every finding includes specific remediation steps.
+**Verifiable:** All findings can be independently verified.
+
+## The 10 Audit Dimensions
+
+1. **Security** - Vulnerabilities, authentication, cryptography
+2. **Structure** - Architecture, design patterns, organization
+3. **Quality** - Logic correctness, SOLID principles, complexity
+4. **Accuracy** - Calculation correctness, business logic verification
+5. **Documentation** - Comments, references, API docs accuracy
+6. **Dependencies** - Imports, licenses, vulnerabilities, versions
+7. **Governance** - Regulatory compliance, policy adherence
+8. **Confidentiality** - Data classification, access control, leakage
+9. **Intellectual Property** - Licenses, copyright, attribution
+10. **Input/Output Verification** - Validation, calculations, conclusions
 
 ## Process
 
@@ -24,6 +44,9 @@ Generate a comprehensive, formal audit report suitable for compliance documentat
 - Creates `{output}.md` for Markdown report
 - Creates `{output}.json` for JSON report
 
+**Frameworks:** Comma-separated list (default: all)
+- nist, fedramp, soc2, iso27001, hipaa, pci-dss, gdpr, ccpa
+
 ### 2. Gather System Information
 
 Collect context about the codebase:
@@ -31,13 +54,17 @@ Collect context about the codebase:
 # Git information
 git log --oneline -10
 git remote -v
+git branch -a
 
 # Project information
 ls -la
-cat package.json 2>/dev/null || cat requirements.txt 2>/dev/null || echo "No package manifest"
+cat package.json 2>/dev/null || cat requirements.txt 2>/dev/null || cat Cargo.toml 2>/dev/null || echo "No package manifest"
+
+# Count files and lines
+find {path} -type f \( -name "*.py" -o -name "*.js" -o -name "*.ts" -o -name "*.java" -o -name "*.go" \) | wc -l
 ```
 
-### 3. Run All Compliance Scans
+### 3. Run All Automated Scans
 
 **Secret Detection:**
 ```bash
@@ -51,26 +78,101 @@ python ${CLAUDE_PLUGIN_ROOT}/skills/compliance-frameworks/scripts/scan-complianc
 
 **Complexity Analysis:**
 ```bash
-python ${CLAUDE_PLUGIN_ROOT}/skills/code-review-practices/scripts/analyze-complexity.py {files} --json
+python ${CLAUDE_PLUGIN_ROOT}/skills/code-review-practices/scripts/analyze-complexity.py {path} --json
 ```
 
-### 4. Manual Code Review
+**Dependency Audit:**
+```bash
+python ${CLAUDE_PLUGIN_ROOT}/skills/dependency-audit/scripts/audit-dependencies.py {path} --format json
+```
 
-Perform targeted review focusing on:
+**License Check:**
+```bash
+python ${CLAUDE_PLUGIN_ROOT}/skills/dependency-audit/scripts/check-licenses.py {path} --format json
+```
 
-- **Authentication flows** - Login, session management, password handling
-- **Authorization checks** - Access control, RBAC implementation
-- **Data handling** - PII, PHI, cardholder data, encryption
-- **API security** - Input validation, output encoding, rate limiting
-- **Audit logging** - Event coverage, log integrity, retention
-- **Cryptography** - Algorithms, key management, TLS configuration
+**Calculation Verification:**
+```bash
+python ${CLAUDE_PLUGIN_ROOT}/skills/verification-audit/scripts/verify-calculations.py {path} --format json
+```
 
-### 5. Generate Markdown Report
+### 4. Deep Manual Audit - ALL 10 DIMENSIONS
+
+Perform comprehensive manual review across all dimensions:
+
+#### DIMENSION 1: SECURITY
+- Authentication/authorization mechanisms
+- Injection vulnerability patterns
+- Cryptographic implementations
+- Secret/credential handling
+- Session management
+- Input validation
+
+#### DIMENSION 2: STRUCTURE
+- Architecture pattern compliance
+- Separation of concerns
+- Design pattern implementation
+- Module organization
+- Circular dependencies
+
+#### DIMENSION 3: QUALITY
+- Logic correctness verification
+- SOLID principles adherence
+- Complexity metrics analysis
+- Error handling completeness
+- Edge case coverage
+
+#### DIMENSION 4: ACCURACY
+- Mathematical calculations
+- Business logic implementation
+- Formula correctness
+- Financial calculations (if applicable)
+- Date/time handling
+
+#### DIMENSION 5: DOCUMENTATION
+- Comment accuracy vs code behavior
+- Stale/outdated documentation
+- Reference link validity
+- API documentation completeness
+- Technical debt tracking (TODO/FIXME)
+
+#### DIMENSION 6: DEPENDENCIES
+- Unused imports
+- Known vulnerabilities (CVEs)
+- License compliance
+- Version currency
+- Supply chain security
+
+#### DIMENSION 7: GOVERNANCE
+- Regulatory framework compliance
+- Policy adherence verification
+- Audit trail completeness
+- Change management compliance
+
+#### DIMENSION 8: CONFIDENTIALITY
+- Data classification accuracy
+- Access control enforcement
+- Information leakage prevention
+- Third-party data sharing
+
+#### DIMENSION 9: INTELLECTUAL PROPERTY
+- License compliance verification
+- Copyright header presence
+- Attribution requirements
+- Open-source obligations
+
+#### DIMENSION 10: INPUT/OUTPUT VERIFICATION
+- Input validation completeness
+- Output encoding correctness
+- Calculation tracing
+- API contract compliance
+
+### 5. Generate Comprehensive Markdown Report
 
 Write to `{output}.md`:
 
 ```markdown
-# Security & Compliance Audit Report
+# Comprehensive Code Audit Report
 
 ## Report Metadata
 | Field | Value |
@@ -78,152 +180,402 @@ Write to `{output}.md`:
 | **Report ID** | {UUID} |
 | **Generated** | {ISO 8601 timestamp} |
 | **Audit Scope** | {path} |
-| **Auditor** | Claude Code Review Helper |
-| **Version** | 1.0.0 |
+| **Auditor** | Claude Code Review Helper v2.0 |
+| **Dimensions Covered** | 10/10 |
+
+---
 
 ## Executive Summary
 
-### Overall Risk Rating: {CRITICAL/HIGH/MEDIUM/LOW}
+### Overall Assessment: {PASS / NEEDS REMEDIATION / CRITICAL FAILURES}
 
-{Summary paragraph describing the overall security and compliance posture, key findings, and recommendations.}
+### Risk Score: {1-10}
+
+{Summary paragraph describing the overall posture across all dimensions, key findings, and top recommendations.}
+
+### Dimension Status Overview
+| Dimension | Status | Critical | High | Medium | Low | Info |
+|-----------|--------|----------|------|--------|-----|------|
+| Security | ✓/⚠/✗ | X | X | X | X | X |
+| Structure | ✓/⚠/✗ | X | X | X | X | X |
+| Quality | ✓/⚠/✗ | X | X | X | X | X |
+| Accuracy | ✓/⚠/✗ | X | X | X | X | X |
+| Documentation | ✓/⚠/✗ | X | X | X | X | X |
+| Dependencies | ✓/⚠/✗ | X | X | X | X | X |
+| Governance | ✓/⚠/✗ | X | X | X | X | X |
+| Confidentiality | ✓/⚠/✗ | X | X | X | X | X |
+| IP Compliance | ✓/⚠/✗ | X | X | X | X | X |
+| I/O Verification | ✓/⚠/✗ | X | X | X | X | X |
 
 ### Key Statistics
 | Metric | Value |
 |--------|-------|
 | Files Analyzed | {count} |
 | Lines of Code | {count} |
+| Total Findings | {count} |
 | Critical Findings | {count} |
 | High Findings | {count} |
-| Medium Findings | {count} |
-| Low Findings | {count} |
-| Informational | {count} |
+| Dependencies Audited | {count} |
+| Vulnerabilities Found | {count} |
+| License Issues | {count} |
+
+### Top 5 Critical Actions
+1. {Most critical action required}
+2. {Second critical action}
+3. {Third critical action}
+4. {Fourth critical action}
+5. {Fifth critical action}
+
+---
 
 ## Scope and Methodology
 
 ### Audit Scope
-{Description of what was audited, including any exclusions.}
+{Description of what was audited, including files, directories, and any exclusions.}
 
 ### Methodology
-This audit employed:
-1. Automated secret detection scanning
-2. Pattern-based compliance rule checking
-3. Static code complexity analysis
-4. Manual code review for business logic
-5. Framework-specific control assessment
+This audit employed comprehensive analysis across 10 dimensions:
+
+1. **Automated Scanning**
+   - Secret detection (credentials, API keys, tokens)
+   - Compliance pattern matching (NIST, HIPAA, PCI-DSS, GDPR)
+   - Code complexity analysis (cyclomatic, cognitive)
+   - Dependency vulnerability scanning (CVE databases)
+   - License compliance checking
+   - Calculation verification
+
+2. **Manual Deep Review**
+   - Security architecture analysis
+   - Business logic verification
+   - Accuracy validation with test cases
+   - Documentation correctness verification
+   - Access control audit
+   - IP compliance assessment
 
 ### Frameworks Assessed
-- NIST 800-53 Rev. 5
-- SOC 2 Type II
-- ISO 27001:2013
-- HIPAA Security Rule
-- PCI-DSS v4.0
+| Framework | Version | Applicability |
+|-----------|---------|---------------|
+| NIST 800-53 | Rev. 5 | {applicable/N/A} |
+| FedRAMP | Moderate | {applicable/N/A} |
+| SOC 2 | Type II | {applicable/N/A} |
+| ISO 27001 | 2022 | {applicable/N/A} |
+| HIPAA | Security Rule | {applicable/N/A} |
+| PCI-DSS | v4.0 | {applicable/N/A} |
+| GDPR | 2018 | {applicable/N/A} |
+| CCPA/CPRA | 2023 | {applicable/N/A} |
 
-## Detailed Findings
+---
 
-### Finding #{number}: {Title}
+## Detailed Findings by Dimension
+
+### Dimension 1: Security
+
+#### Summary
+- **Status:** {PASS/PARTIAL/FAIL}
+- **Findings:** {count} total ({critical}, {high}, {medium}, {low})
+- **Key Concerns:** {brief summary}
+
+#### Finding S-001: {Title}
 
 | Attribute | Value |
 |-----------|-------|
 | **Severity** | {CRITICAL/HIGH/MEDIUM/LOW/INFO} |
-| **Framework** | {applicable frameworks} |
-| **Control** | {control ID} |
-| **Status** | OPEN |
-| **File** | {file path} |
-| **Line** | {line number} |
+| **Dimension** | Security |
+| **Category** | {Authentication/Injection/Crypto/etc.} |
+| **Frameworks** | {NIST SC-X, PCI-DSS Req X, etc.} |
+| **File** | `{file path}` |
+| **Line** | {line number(s)} |
 
 **Description:**
-{Detailed description of the finding}
+{Detailed description of the security issue}
 
 **Evidence:**
 ```{language}
-{Code snippet demonstrating the issue}
+{Code snippet demonstrating the vulnerability}
 ```
 
-**Risk:**
-{Explanation of the risk and potential impact}
+**Impact:**
+{Specific impact - data breach risk, compliance violation, etc.}
 
 **Remediation:**
-{Specific steps to remediate the issue}
+```{language}
+{Corrected code example}
+```
+
+**Verification:**
+{How to verify the fix is correct}
 
 **References:**
-- {Link to relevant standard or documentation}
+- {OWASP reference}
+- {CWE reference}
+- {Compliance framework reference}
 
 ---
 
-[Repeat for each finding]
+[Continue for each Security finding]
 
-## Compliance Summary
+---
 
-### NIST 800-53
+### Dimension 2: Structure
 
-| Control Family | Assessed | Passed | Failed | N/A |
-|---------------|----------|--------|--------|-----|
-| Access Control (AC) | X | X | X | X |
-| Audit (AU) | X | X | X | X |
-| Identification (IA) | X | X | X | X |
-| System Protection (SC) | X | X | X | X |
-| System Integrity (SI) | X | X | X | X |
+#### Summary
+- **Status:** {PASS/PARTIAL/FAIL}
+- **Findings:** {count}
+- **Architecture:** {identified pattern}
+- **Key Concerns:** {brief summary}
 
-### SOC 2 Trust Services
+[Findings follow same format]
 
-| Criteria | Status | Notes |
-|----------|--------|-------|
-| Security (CC6) | PASS/FAIL | {notes} |
-| Availability | N/A | {notes} |
-| Processing Integrity | N/A | {notes} |
-| Confidentiality | PASS/FAIL | {notes} |
-| Privacy | N/A | {notes} |
+---
 
-### HIPAA Security Rule
+### Dimension 3: Quality
 
-| Standard | Status | Notes |
-|----------|--------|-------|
-| Access Control §164.312(a) | PASS/FAIL | {notes} |
-| Audit Controls §164.312(b) | PASS/FAIL | {notes} |
-| Integrity §164.312(c) | PASS/FAIL | {notes} |
-| Authentication §164.312(d) | PASS/FAIL | {notes} |
-| Transmission §164.312(e) | PASS/FAIL | {notes} |
+#### Summary
+- **Status:** {PASS/PARTIAL/FAIL}
+- **Average Complexity:** {number}
+- **Max Complexity:** {number} in {file}
+- **SOLID Violations:** {count}
+- **Key Concerns:** {brief summary}
 
-### PCI-DSS
+[Findings follow same format]
 
-| Requirement | Status | Notes |
-|-------------|--------|-------|
-| Req 3: Protect CHD | PASS/FAIL | {notes} |
-| Req 4: Encrypt Transmission | PASS/FAIL | {notes} |
-| Req 6: Secure Systems | PASS/FAIL | {notes} |
-| Req 8: Authentication | PASS/FAIL | {notes} |
-| Req 10: Logging | PASS/FAIL | {notes} |
+---
+
+### Dimension 4: Accuracy
+
+#### Summary
+- **Status:** {PASS/PARTIAL/FAIL}
+- **Calculations Audited:** {count}
+- **Errors Found:** {count}
+- **Key Concerns:** {brief summary}
+
+#### Calculation Verification Results
+| Calculation | Location | Expected | Actual | Status |
+|-------------|----------|----------|--------|--------|
+| {name} | {file:line} | {value} | {value} | ✓/✗ |
+
+[Findings follow same format]
+
+---
+
+### Dimension 5: Documentation
+
+#### Summary
+- **Status:** {PASS/PARTIAL/FAIL}
+- **Stale Comments:** {count}
+- **Missing Docs:** {count}
+- **Invalid References:** {count}
+
+[Findings follow same format]
+
+---
+
+### Dimension 6: Dependencies
+
+#### Summary
+- **Status:** {PASS/PARTIAL/FAIL}
+- **Total Dependencies:** {count}
+- **Vulnerabilities:** {count} ({critical}, {high}, {medium})
+- **License Issues:** {count}
+- **Outdated:** {count}
+
+#### Vulnerability Summary
+| Package | Version | CVE | Severity | Fixed In |
+|---------|---------|-----|----------|----------|
+| {pkg} | {ver} | {cve} | {sev} | {fix} |
+
+#### License Summary
+| License Type | Count | Compatible |
+|--------------|-------|------------|
+| MIT | X | ✓ |
+| Apache-2.0 | X | ✓ |
+| GPL-3.0 | X | ⚠ Review |
+
+[Findings follow same format]
+
+---
+
+### Dimension 7: Governance
+
+#### Summary
+- **Status:** {PASS/PARTIAL/FAIL}
+- **Frameworks Assessed:** {list}
+- **Compliance Gaps:** {count}
+
+#### Compliance Matrix
+
+##### NIST 800-53
+| Control Family | Assessed | Pass | Partial | Fail | N/A |
+|---------------|----------|------|---------|------|-----|
+| AC (Access Control) | X | X | X | X | X |
+| AU (Audit) | X | X | X | X | X |
+| IA (Identification) | X | X | X | X | X |
+| SC (System/Comms) | X | X | X | X | X |
+| SI (System Integrity) | X | X | X | X | X |
+
+##### HIPAA (if applicable)
+| Safeguard | Status | Gap |
+|-----------|--------|-----|
+| §164.312(a) Access Control | PASS/FAIL | {gap} |
+| §164.312(b) Audit Controls | PASS/FAIL | {gap} |
+| §164.312(c) Integrity | PASS/FAIL | {gap} |
+| §164.312(d) Authentication | PASS/FAIL | {gap} |
+| §164.312(e) Transmission | PASS/FAIL | {gap} |
+
+##### PCI-DSS (if applicable)
+| Requirement | Status | Gap |
+|-------------|--------|-----|
+| Req 3: Protect CHD | PASS/FAIL | {gap} |
+| Req 4: Encrypt Transmission | PASS/FAIL | {gap} |
+| Req 6: Secure Development | PASS/FAIL | {gap} |
+| Req 8: Authentication | PASS/FAIL | {gap} |
+| Req 10: Logging | PASS/FAIL | {gap} |
+
+##### GDPR (if applicable)
+| Article | Status | Gap |
+|---------|--------|-----|
+| Art 5: Principles | PASS/FAIL | {gap} |
+| Art 25: Privacy by Design | PASS/FAIL | {gap} |
+| Art 32: Security | PASS/FAIL | {gap} |
+| Art 17: Right to Erasure | PASS/FAIL | {gap} |
+
+[Findings follow same format]
+
+---
+
+### Dimension 8: Confidentiality
+
+#### Summary
+- **Status:** {PASS/PARTIAL/FAIL}
+- **Data Classifications Found:** {list}
+- **Leakage Risks:** {count}
+- **Access Control Issues:** {count}
+
+#### Data Classification Matrix
+| Data Type | Classification | Location | Protection Status |
+|-----------|---------------|----------|-------------------|
+| {type} | PII/PHI/PCI | {files} | ✓/⚠/✗ |
+
+[Findings follow same format]
+
+---
+
+### Dimension 9: Intellectual Property
+
+#### Summary
+- **Status:** {PASS/PARTIAL/FAIL}
+- **License Violations:** {count}
+- **Attribution Issues:** {count}
+- **Copyright Issues:** {count}
+
+#### License Compatibility
+| Dependency License | Project License | Compatible |
+|-------------------|-----------------|------------|
+| {license} | {license} | ✓/✗ |
+
+[Findings follow same format]
+
+---
+
+### Dimension 10: Input/Output Verification
+
+#### Summary
+- **Status:** {PASS/PARTIAL/FAIL}
+- **Input Sources:** {count} identified
+- **Validation Gaps:** {count}
+- **Calculation Errors:** {count}
+
+#### Input Validation Matrix
+| Input | Source | Type Check | Range Check | Format Check | Sanitized |
+|-------|--------|------------|-------------|--------------|-----------|
+| {name} | {source} | ✓/✗ | ✓/✗ | ✓/✗ | ✓/✗ |
+
+[Findings follow same format]
+
+---
 
 ## Remediation Roadmap
 
-### Immediate (0-7 days)
-Critical and high findings requiring immediate attention:
-1. {Finding with remediation}
+### Immediate Actions (Block Deployment)
+| Priority | Finding | Action | Owner | Due |
+|----------|---------|--------|-------|-----|
+| 1 | {finding} | {action} | {owner} | Immediate |
 
-### Short-term (1-4 weeks)
-Medium findings and quick wins:
-1. {Finding with remediation}
+### Before Next Release (7 days)
+| Priority | Finding | Action | Owner | Due |
+|----------|---------|--------|-------|-----|
+| 1 | {finding} | {action} | {owner} | 7 days |
 
-### Long-term (1-3 months)
-Process improvements and enhancements:
-1. {Improvement}
+### Short-term (30 days)
+| Priority | Finding | Action | Owner | Due |
+|----------|---------|--------|-------|-----|
+| 1 | {finding} | {action} | {owner} | 30 days |
+
+### Long-term (90 days)
+| Priority | Finding | Action | Owner | Due |
+|----------|---------|--------|-------|-----|
+| 1 | {finding} | {action} | {owner} | 90 days |
+
+---
+
+## Positive Observations
+
+{Note exceptional security practices, well-implemented patterns, and areas of strength.}
+
+---
 
 ## Appendices
 
 ### A. Files Analyzed
-{List of all files included in the audit}
+{Complete list of all files included in the audit}
 
-### B. Tools Used
+### B. Tools and Scripts Used
 - Secret Scanner v1.0
 - Compliance Scanner v1.0
 - Complexity Analyzer v1.0
+- Dependency Auditor v1.0
+- License Checker v1.0
+- Calculation Verifier v1.0
 
 ### C. Glossary
-{Definitions of technical terms}
+| Term | Definition |
+|------|------------|
+| PII | Personally Identifiable Information |
+| PHI | Protected Health Information |
+| CHD | Cardholder Data |
+| CVE | Common Vulnerabilities and Exposures |
+
+### D. References
+- [NIST 800-53 Rev. 5](https://nvd.nist.gov/800-53)
+- [OWASP Top 10](https://owasp.org/Top10/)
+- [CWE/SANS Top 25](https://cwe.mitre.org/top25/)
 
 ---
 
-*This report was generated automatically by Code Review Helper. Findings should be validated by qualified security personnel.*
+## Audit Certification
+
+This comprehensive audit has covered all 10 dimensions:
+1. ✓ Security
+2. ✓ Structure
+3. ✓ Quality
+4. ✓ Accuracy
+5. ✓ Documentation
+6. ✓ Dependencies
+7. ✓ Governance
+8. ✓ Confidentiality
+9. ✓ Intellectual Property
+10. ✓ Input/Output Verification
+
+All findings are evidence-based with specific code references. This report is suitable for regulatory audit documentation and board-level reporting.
+
+**Auditor:** Claude Code Review Helper
+**Date:** {date}
+**Report ID:** {uuid}
+**Signature:** [DIGITAL SIGNATURE PLACEHOLDER]
+
+---
+
+*This report was generated automatically by Code Review Helper. Critical findings should be validated by qualified security personnel before remediation.*
 ```
 
 ### 6. Generate JSON Report
@@ -236,40 +588,118 @@ Write to `{output}.json`:
     "reportId": "{UUID}",
     "generatedAt": "{ISO 8601}",
     "scope": "{path}",
-    "version": "1.0.0"
+    "version": "2.0.0",
+    "dimensionsCovered": 10
   },
   "summary": {
-    "overallRisk": "HIGH",
-    "filesAnalyzed": 100,
-    "linesOfCode": 15000,
-    "findingCounts": {
-      "critical": 1,
-      "high": 3,
-      "medium": 8,
+    "overallAssessment": "NEEDS_REMEDIATION",
+    "riskScore": 7,
+    "filesAnalyzed": 150,
+    "linesOfCode": 25000,
+    "totalFindings": 45,
+    "findingsBySeverity": {
+      "critical": 2,
+      "high": 8,
+      "medium": 15,
       "low": 12,
-      "informational": 5
+      "informational": 8
+    },
+    "findingsByDimension": {
+      "security": {"total": 10, "critical": 2, "high": 3},
+      "structure": {"total": 5, "critical": 0, "high": 1},
+      "quality": {"total": 8, "critical": 0, "high": 2},
+      "accuracy": {"total": 3, "critical": 0, "high": 1},
+      "documentation": {"total": 4, "critical": 0, "high": 0},
+      "dependencies": {"total": 6, "critical": 0, "high": 2},
+      "governance": {"total": 5, "critical": 0, "high": 1},
+      "confidentiality": {"total": 3, "critical": 0, "high": 1},
+      "intellectualProperty": {"total": 2, "critical": 0, "high": 0},
+      "inputOutputVerification": {"total": 4, "critical": 0, "high": 1}
+    }
+  },
+  "dimensions": {
+    "security": {
+      "status": "PARTIAL",
+      "findings": [...]
+    },
+    "structure": {
+      "status": "PASS",
+      "findings": [...]
     }
   },
   "findings": [
     {
-      "id": "FINDING-001",
+      "id": "S-001",
+      "dimension": "security",
       "severity": "critical",
-      "title": "Hardcoded Database Credentials",
-      "frameworks": ["NIST", "SOC2", "PCI-DSS"],
-      "control": "NIST SC-28",
-      "file": "src/config.py",
-      "line": 42,
-      "description": "Database password hardcoded in source",
-      "evidence": "db_password = 'secret123'",
-      "remediation": "Use environment variables or secrets manager",
+      "title": "SQL Injection Vulnerability",
+      "category": "injection",
+      "frameworks": ["NIST SI-10", "PCI-DSS 6.5.1", "OWASP A03"],
+      "file": "src/api/users.py",
+      "line": 45,
+      "description": "User input directly concatenated into SQL query",
+      "evidence": "query = f\"SELECT * FROM users WHERE id = {user_id}\"",
+      "impact": "Full database compromise, data breach",
+      "remediation": "Use parameterized queries",
+      "remediationCode": "query = \"SELECT * FROM users WHERE id = %s\"\ncursor.execute(query, (user_id,))",
+      "references": ["https://owasp.org/www-community/attacks/SQL_Injection"],
       "status": "open"
     }
   ],
   "compliance": {
-    "nist": {"passed": 45, "failed": 3, "na": 12},
-    "soc2": {"passed": 20, "failed": 2, "na": 8},
-    "hipaa": {"passed": 10, "failed": 1, "na": 4},
-    "pciDss": {"passed": 15, "failed": 2, "na": 3}
+    "nist": {
+      "assessed": 97,
+      "passed": 85,
+      "partial": 8,
+      "failed": 4,
+      "na": 0
+    },
+    "hipaa": {
+      "assessed": 15,
+      "passed": 12,
+      "partial": 2,
+      "failed": 1,
+      "na": 0
+    },
+    "pciDss": {
+      "assessed": 12,
+      "passed": 10,
+      "partial": 1,
+      "failed": 1,
+      "na": 0
+    },
+    "gdpr": {
+      "assessed": 8,
+      "passed": 6,
+      "partial": 1,
+      "failed": 1,
+      "na": 0
+    }
+  },
+  "dependencies": {
+    "total": 85,
+    "vulnerabilities": {
+      "critical": 0,
+      "high": 2,
+      "medium": 5,
+      "low": 8
+    },
+    "licenses": {
+      "permissive": 70,
+      "weakCopyleft": 10,
+      "strongCopyleft": 3,
+      "unknown": 2
+    },
+    "outdated": {
+      "major": 5,
+      "minor": 12,
+      "patch": 20
+    }
+  },
+  "remediationRoadmap": {
+    "immediate": [...],
+    "shortTerm": [...],
+    "longTerm": [...]
   }
 }
 ```
@@ -280,7 +710,7 @@ Write both reports:
 1. Use Write tool for `{output}.md`
 2. Use Write tool for `{output}.json`
 
-Report the file locations to the user.
+Report the file locations to the user with summary statistics.
 
 ## Example Usage
 
@@ -289,4 +719,5 @@ Report the file locations to the user.
 /audit-report src/
 /audit-report . --output security-audit-2024-01
 /audit-report src/api/ --output api-compliance-report
+/audit-report . --frameworks hipaa,pci-dss --output healthcare-payment-audit
 ```
