@@ -1,0 +1,18 @@
+# Plugin settings (may contain sensitive config)
+.claude/*.local.md
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.env
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo

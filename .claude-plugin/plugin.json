@@ -1,0 +1,23 @@
+{
+  "name": "code-review-helper",
+  "version": "1.0.0",
+  "description": "Comprehensive code review plugin with compliance auditing, security analysis, and multi-platform support for GitHub, GitLab, and Bitbucket",
+  "author": {
+    "name": "Plugin Author",
+    "email": "author@example.com"
+  },
+  "license": "MIT",
+  "keywords": [
+    "code-review",
+    "compliance",
+    "security",
+    "audit",
+    "NIST",
+    "SOC2",
+    "HIPAA",
+    "PCI-DSS",
+    "github",
+    "gitlab",
+    "bitbucket"
+  ]
+}
