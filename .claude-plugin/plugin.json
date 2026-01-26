@@ -19,5 +19,9 @@
     "github",
     "gitlab",
     "bitbucket"
-  ]
+  ],
+  "commands": "./commands/",
+  "agents": "./agents/",
+  "skills": "./skills/",
+  "hooks": "./hooks/hooks.json"
 }
